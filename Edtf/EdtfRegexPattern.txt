@@ -29,8 +29,8 @@ y?
 	(?<yearnum>
 		[+-]?							# optional sign
 		(?:
-			\d+e\d+						# exponential form, no "u" or "x" allowed
-			|[0-9u][0-9ux]*				# decimal form, "u" allowed in the first digit, "u" or "x" in any other
+			\d+e\d+						# exponential form, no "X" or "x" allowed
+			|[0-9X][0-9Xx]*				# decimal form, "X" allowed in the first digit, "X" or "x" in any other
 		)
 	)
 	(?>p(?<yearprecision>\d+))?			# precision, only for exponential form
@@ -41,7 +41,7 @@ y?
 (?>-
 	(?<month>
 		(?<monthopenparens>\(+)?		# month optional opening paren
-		(?<monthnum>(?>1[0-9u]|[0u][0-9u]|2[1-4]))
+		(?<monthnum>(?>1[0-9X]|[0X][0-9X]|2[1-4]))
 
 		# The EDTF spec allows any non-whitespace character here, but a number of characters should be reserved because they can
 		# appear legitimately between date values in sets/pairs. Based on a recommendation to the listserv in December 2014, this
@@ -58,7 +58,7 @@ y?
 	(?>-
 		(?<day>
 			(?<dayopenparens>\(+)?		# day optional opening paren
-			(?<daynum>(?>[012u][0-9u]|3[01u]))
+			(?<daynum>(?>[012X][0-9X]|3[01X]))
 		)
 		(?<dayend>
 			[)~?]*

@@ -52,13 +52,11 @@ namespace Edtf {
 	/// </summary>
 	public struct DatePart {
 
-		private int pvtValue;
+		private int _pvtValue;
 		public int Value {
-			get {
-				return pvtValue;
-			}
-			set {
-				pvtValue = value;
+			get => _pvtValue;
+            set {
+				_pvtValue = value;
 				HasValue = true;
 			}
 		}
@@ -86,14 +84,14 @@ namespace Edtf {
 					}
 				}
 
-				var FirstU = s.IndexOf('u');
-				if (FirstU >= 0) {
-					var mask = new String('0', FirstU);
-					var newS = s.Substring(0, FirstU);
+				var firstX = s.IndexOf('X');
+				if (firstX >= 0) {
+					var mask = new String('0', firstX);
+					var newS = s.Substring(0, firstX);
 					char c;
-					for (var i = FirstU; i < s.Length; i++) {
+					for (var i = firstX; i < s.Length; i++) {
 						c = s[i];
-						if (c == 'u') {
+						if (c == 'X') {
 							mask += '1';
 							newS += '0';
 						} else {
@@ -139,7 +137,7 @@ namespace Edtf {
 			// Set the unspecified digits to "u"
 			for (int i = 1; i <= u.Length; i++) {
 				if (u[u.Length - i] == '1')
-					v[v.Length - i] = 'u';
+					v[v.Length - i] = 'X';
 			}
 
 			var v2 = new string(v).PadLeft(padDigits, '0');

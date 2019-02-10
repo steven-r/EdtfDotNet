@@ -25,7 +25,6 @@
 // THE SOFTWARE.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -71,14 +70,16 @@ namespace Edtf {
 
 
 		private static Regex _matcher;
-		private static object matchLoadLocker = new object();
+		private static readonly object MatchLoadLocker = new object();
+
 		private static Regex Matcher {
 			get {
 				if (_matcher == null) {
-					lock (matchLoadLocker) {
+					lock (MatchLoadLocker) {
 						if (_matcher == null) {
 							var stream = Assembly.GetExecutingAssembly().GetManifestResourceStream("Edtf.EdtfRegexPattern.txt");
-							var pattern = "";
+                            if (stream == null) throw new InvalidOperationException("stream is null");
+							string pattern;
 							using (var reader = new System.IO.StreamReader (stream)) {
 								pattern = reader.ReadToEnd ();
 							}
@@ -88,11 +89,6 @@ namespace Edtf {
 				}
 				return _matcher;
 			}
-		}
-
-		private static int GetMask(string s, char mc) {
-			var arr = (from c in s select (c == mc ? '1' : '0')).ToArray();
-			return Int32.Parse(new string(arr));
 		}
 
 		public static Date Parse(string rawValue) {
@@ -126,69 +122,69 @@ namespace Edtf {
 			// Take the returned regular expression match and parse it into the various date/time bits,
 			// validating as needed.
 
-			var YearVal = g["yearnum"].Value;
+			var yearVal = g["yearnum"].Value;
 
 			// A Year is required.
-			if (String.IsNullOrEmpty(YearVal))
+			if (String.IsNullOrEmpty(yearVal))
 				return result;
 
 			// Convert the year, this handles both normal and scientific notation
 			// Only parse using a Double first if there is an exponent.
-			result.Year = DatePart.Parse(YearVal, true);
+			result.Year = DatePart.Parse(yearVal, true);
 
-			var YearPrecision = g["yearprecision"].Value;
-			if (!String.IsNullOrEmpty(YearPrecision)) {
+			var yearPrecision = g["yearprecision"].Value;
+			if (!string.IsNullOrEmpty(yearPrecision)) {
 				// The part after "p" are the number of *significant* digits, so
 				// to find the insignificant count, convert the value to a temp
 				// string to get its length.
 				// http://stackoverflow.com/questions/4483886/how-can-i-get-a-count-of-the-total-number-of-digits-in-a-number
-				var TotalDigits = Math.Floor(Math.Log10(result.Year.Value) + 1);
-				var InsigDigits = TotalDigits - Int32.Parse(YearPrecision);
-				result.Year.InsignificantDigits = (InsigDigits < 0) ? (byte)0 : (byte)InsigDigits;
+				var totalDigits = Math.Floor(Math.Log10(result.Year.Value) + 1);
+				var insigDigits = totalDigits - int.Parse(yearPrecision);
+				result.Year.InsignificantDigits = (insigDigits < 0) ? (byte)0 : (byte)insigDigits;
 			}
 
-			var YearFlagsVal = g["yearend"].Value;
-			if (!String.IsNullOrEmpty(YearFlagsVal)) {
-				result.Year.IsApproximate = YearFlagsVal.Contains('~');
-				result.Year.IsUncertain = YearFlagsVal.Contains('?');
+			var yearFlagsVal = g["yearend"].Value;
+			if (!string.IsNullOrEmpty(yearFlagsVal)) {
+				result.Year.IsApproximate = yearFlagsVal.Contains('~');
+				result.Year.IsUncertain = yearFlagsVal.Contains('?');
 			}
 
-			var MonthVal = g["monthnum"].Value;
-			if (String.IsNullOrEmpty(MonthVal)) return result;
-			result.Month = DatePart.Parse(MonthVal, false);
+			var monthVal = g["monthnum"].Value;
+			if (string.IsNullOrEmpty(monthVal)) return result;
+			result.Month = DatePart.Parse(monthVal, false);
 
 			// Keep a stack of open parenthesis and where they occurred. Also
 			// keep a count of accounted-for ones (where the closing paren
 			// has been reached).
 
-			var Parens = new ParenthesisTracker() { YearsOpen = g["yearopenparens"].Value.Length };
+			var parens = new ParenthesisTracker() { YearsOpen = g["yearopenparens"].Value.Length };
 			{
-				var YearsClosed = YearFlagsVal.Count(t => t == ')');
-				for (int i = 0; i < YearsClosed; i++)
-					Parens.Close();
+				var yearsClosed = yearFlagsVal.Count(t => t == ')');
+				for (int i = 0; i < yearsClosed; i++)
+					parens.Close();
 			}
 
-			bool YearIsProtected = Parens.JustClosedYearParen;
-			bool YearGetsFlags = !YearIsProtected;
+			bool yearIsProtected = parens.JustClosedYearParen;
+			bool yearGetsFlags = !yearIsProtected;
 
-			Parens.MonthsOpen = g["monthopenparens"].Value.Length;
-			var MonthFlagsVal = g["monthend"].Value;
-			if (!String.IsNullOrEmpty(MonthFlagsVal)) {
-				Parens.JustClosedYearParen = false;
-				Parens.JustClosedMonthParen = false;
-				foreach (var c in MonthFlagsVal) {
+			parens.MonthsOpen = g["monthopenparens"].Value.Length;
+			var monthFlagsVal = g["monthend"].Value;
+			if (!String.IsNullOrEmpty(monthFlagsVal)) {
+				parens.JustClosedYearParen = false;
+				parens.JustClosedMonthParen = false;
+				foreach (var c in monthFlagsVal) {
 					switch (c) {
 						case ')':
-							Parens.Close();
-							YearGetsFlags = (!YearIsProtected) && (!Parens.JustClosedMonthParen);
+							parens.Close();
+							yearGetsFlags = (!yearIsProtected) && (!parens.JustClosedMonthParen);
 							break;
 						case '~':
 							result.Month.IsApproximate = true;
-							result.Year.IsApproximate = result.Year.IsApproximate || YearGetsFlags;
+							result.Year.IsApproximate = result.Year.IsApproximate || yearGetsFlags;
 							break;
 						case '?':
 							result.Month.IsUncertain = true;
-							result.Year.IsUncertain = result.Year.IsUncertain || YearGetsFlags;
+							result.Year.IsUncertain = result.Year.IsUncertain || yearGetsFlags;
 							break;
 					}
 				}
@@ -200,34 +196,34 @@ namespace Edtf {
 				return result;
 			}
 
-			var DayVal = g["daynum"].Value;
-			if (String.IsNullOrEmpty(DayVal)) return result;
-			result.Day = DatePart.Parse(DayVal, false);
+			var dayVal = g["daynum"].Value;
+			if (string.IsNullOrEmpty(dayVal)) return result;
+			result.Day = DatePart.Parse(dayVal, false);
 
-			var DayFlagsVal = g["dayend"].Value;
-			if (!String.IsNullOrEmpty(DayFlagsVal)) {
-				Parens.JustClosedYearParen = false;
-				Parens.JustClosedMonthParen = false;
-				Parens.DaysOpen = g["dayopenparens"].Value.Length;
-				YearGetsFlags = !YearIsProtected;
-				bool MonthIsProtected = (Parens.MonthsClosed > 0);
-				bool MonthGetsFlags = !MonthIsProtected;
-				foreach (var c in DayFlagsVal) {
+			var dayFlagsVal = g["dayend"].Value;
+			if (!string.IsNullOrEmpty(dayFlagsVal)) {
+				parens.JustClosedYearParen = false;
+				parens.JustClosedMonthParen = false;
+				parens.DaysOpen = g["dayopenparens"].Value.Length;
+				yearGetsFlags = !yearIsProtected;
+				bool monthIsProtected = (parens.MonthsClosed > 0);
+				bool monthGetsFlags = !monthIsProtected;
+				foreach (var c in dayFlagsVal) {
 					switch (c) {
 						case ')':
-							Parens.Close();
-							MonthGetsFlags = (!MonthIsProtected) && !Parens.JustClosedDayParen;
-							YearGetsFlags = (!YearIsProtected) && (!Parens.JustClosedDayParen) && (!Parens.JustClosedMonthParen); 
+							parens.Close();
+							monthGetsFlags = (!monthIsProtected) && !parens.JustClosedDayParen;
+							yearGetsFlags = (!yearIsProtected) && (!parens.JustClosedDayParen) && (!parens.JustClosedMonthParen); 
 							break;
 						case '~':
 							result.Day.IsApproximate = true;
-							result.Year.IsApproximate = result.Year.IsApproximate || YearGetsFlags;
-							result.Month.IsApproximate = result.Month.IsApproximate || MonthGetsFlags;
+							result.Year.IsApproximate = result.Year.IsApproximate || yearGetsFlags;
+							result.Month.IsApproximate = result.Month.IsApproximate || monthGetsFlags;
 							break;
 						case '?':
 							result.Day.IsUncertain = true;
-							result.Year.IsUncertain = result.Year.IsUncertain || YearGetsFlags;
-							result.Month.IsUncertain = result.Month.IsUncertain || MonthGetsFlags;
+							result.Year.IsUncertain = result.Year.IsUncertain || yearGetsFlags;
+							result.Month.IsUncertain = result.Month.IsUncertain || monthGetsFlags;
 							break;
 					}
 				}
