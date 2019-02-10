@@ -7,7 +7,7 @@ EDTF is a data model for dates and times that is based on a subset of ISO 8601 a
 
 If you aren't familiar with EDTF, here's more information:
 
-http://www.loc.gov/standards/datetime/pre-submission.html
+http://www.loc.gov/standards/datetime/edtf.html
 
 Rather than attempting to create a full parallel implementation of DateTime, EDTF.NET's primary focus is parsing strings containing EDTF data into discrete properties and serializing EDTF date structures to conforming strings.
 
@@ -25,6 +25,14 @@ Unit tests have been created to cover L0, L1, and some L2 features, using the ex
 
 ## To-Do (if you can help with these, that would be awesome)
 
+- Update to the new standard as of 2019 (taken from [the linke above](http://www.loc.gov/standards/datetime/edtf.html)):
+  - [ ] The unspecified date character (formerly lower case ‘u’) is superseded by the character (upper case) 'X' (Issue #1)
+  - [ ] Masked precision is eliminated
+  - [ ] The uncertain and approximate qualifiers, '?' and '~',  when applied together, are combined into a single qualifier character '%'
+  - [ ] "Qualification from the left" is introduced and replaces the grouping mechanism using parentheses
+  - [ ] The extended interval syntax  keywords 'unknown' and 'open' have been replaced with null and the double-dot notation ['..'] respectively
+  - [ ] The year prefix 'y' and the exponential indicator 'e', both previously lowercase, are now 'Y' and 'E' (uppercase)
+  - [ ] The significant digit indicator 'p' is now 'S' (uppercase)
 - [X] Resolve currently-failing L2 unit tests because of grouping/qualifier propogation issues during parsing.
 - [X] Resolve currently-failing L2 unit tests due to re-grouping issues in ToString()).
 - [ ] Unit tests to cover the remaining L2 feature examples
