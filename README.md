@@ -33,7 +33,7 @@ Unit tests have been created to cover L0, L1, and some L2 features, using the ex
   - [ ] The extended interval syntax  keywords 'unknown' and 'open' have been replaced with null and the double-dot notation ['..'] respectively
   - [X] The year prefix 'y' and the exponential indicator 'e', both previously lowercase, are now 'Y' and 'E' (uppercase)
   - [X] The significant digit indicator 'p' is now 'S' (uppercase)
-  - [ ] Significant digits are supported at any year (four digit, "Y" and "Y" with exp)
+  - [X] Significant digits are supported at any year (four digit, "Y" and "Y" with exp)
 - [X] Resolve currently-failing L2 unit tests because of grouping/qualifier propogation issues during parsing.
 - [X] Resolve currently-failing L2 unit tests due to re-grouping issues in ToString()).
 - [ ] Unit tests to cover the remaining L2 feature examples
