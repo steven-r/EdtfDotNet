@@ -130,7 +130,7 @@ namespace Edtf {
 
 			// Convert the year, this handles both normal and scientific notation
 			// Only parse using a Double first if there is an exponent.
-			result.Year = DatePart.Parse(yearVal, true);
+			result.Year = DatePart.Parse(yearVal);
 
 			var yearPrecision = g["yearprecision"].Value;
 			if (!string.IsNullOrEmpty(yearPrecision)) {
@@ -151,7 +151,7 @@ namespace Edtf {
 
 			var monthVal = g["monthnum"].Value;
 			if (string.IsNullOrEmpty(monthVal)) return result;
-			result.Month = DatePart.Parse(monthVal, false);
+			result.Month = DatePart.Parse(monthVal);
 
 			// Keep a stack of open parenthesis and where they occurred. Also
 			// keep a count of accounted-for ones (where the closing paren
@@ -198,7 +198,7 @@ namespace Edtf {
 
 			var dayVal = g["daynum"].Value;
 			if (string.IsNullOrEmpty(dayVal)) return result;
-			result.Day = DatePart.Parse(dayVal, false);
+			result.Day = DatePart.Parse(dayVal);
 
 			var dayFlagsVal = g["dayend"].Value;
 			if (!string.IsNullOrEmpty(dayFlagsVal)) {
