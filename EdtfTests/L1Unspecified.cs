@@ -82,5 +82,41 @@ namespace EdtfTests
             Assert.AreEqual(DateString, TestDate.ToString());
         }
 
+        [Test]
+        public void TestL1YearUnspecifiedMiddleError()
+        {
+            const string dateString = "1X99";
+            var testDate = Edtf.DatePair.Parse(dateString);
+            Assert.IsTrue(testDate.StartValue.Year.Invalid);
+        }
+
+        [Test]
+        public void TestL1YearUnspecifiedError()
+        {
+            const string dateString = "X199";
+            var testDate = Edtf.DatePair.Parse(dateString);
+            Assert.IsTrue(testDate.StartValue.Year.Invalid);
+        }
+
+        [Test]
+        public void TestL1MonthUnspecifiedError()
+        {
+            const string dateString = "2199-X0";
+            var testDate = Edtf.DatePair.Parse(dateString);
+            Assert.IsFalse(testDate.StartValue.Year.Invalid);
+            Assert.IsTrue(testDate.StartValue.Month.Invalid);
+            Assert.IsFalse(testDate.StartValue.Day.Invalid);
+        }
+
+        [Test]
+        public void TestL1DayUnspecifiedError()
+        {
+            const string dateString = "2199-10-X0";
+            var testDate = Edtf.DatePair.Parse(dateString);
+            Assert.IsFalse(testDate.StartValue.Year.Invalid);
+            Assert.IsFalse(testDate.StartValue.Month.Invalid);
+            Assert.IsTrue(testDate.StartValue.Day.Invalid);
+        }
+
     }
 }
