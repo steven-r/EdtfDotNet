@@ -54,6 +54,7 @@
     <Compile Include="L0DateAndTime.cs" />
     <Compile Include="L0Interval.cs" />
     <Compile Include="L1Season.cs" />
+    <Compile Include="L2SignificantDigits.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

@@ -6,7 +6,7 @@ namespace EdtfTests
     [TestFixture()] public class L1LongYear {
 
         [Test] public void TestL1LongYear1() {
-            const string DateString = "y170000002";
+            const string DateString = "Y170000002";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(170000002, TestDate.StartValue.Year.Value);
             Assert.AreEqual(false, TestDate.StartValue.Year.IsUncertain);
@@ -17,7 +17,7 @@ namespace EdtfTests
         }
 
         [Test] public void TestL1LongYear2() {
-            const string DateString = "y-170000002";
+            const string DateString = "Y-170000002";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(-170000002, TestDate.StartValue.Year.Value);
             Assert.AreEqual(false, TestDate.StartValue.Year.IsUncertain);

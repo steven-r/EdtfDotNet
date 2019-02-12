@@ -71,8 +71,9 @@ namespace Edtf
 		public int UnspecifiedMask { get; set; }            // places with a 1 are emitted as "X"
 
         public byte InsignificantDigits { get; set; }
+        public int SignificantDigits { get; set; }
 
-		public override string ToString() {
+        public override string ToString() {
 			return ToString(0);
 		}
 
@@ -144,11 +145,14 @@ namespace Edtf
 
 			if(Value > 9999 || Value < -9999) {
 				// this is more than a 4-digit year, add the "y" prefix (it's optional, but probably wise in these exceptional cases)
-				v2 = 'y' + v2;
+				v2 = 'Y' + v2;
 			}
 
+            if (SignificantDigits > 0)
+            {
+                v2 += 'S' + SignificantDigits.ToString(CultureInfo.InvariantCulture);
+            }
 			return v2;
-
 		}
 
 	}
