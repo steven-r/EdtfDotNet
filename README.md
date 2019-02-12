@@ -31,8 +31,8 @@ Unit tests have been created to cover L0, L1, and some L2 features, using the ex
   - [ ] The uncertain and approximate qualifiers, '?' and '~',  when applied together, are combined into a single qualifier character '%'
   - [ ] "Qualification from the left" is introduced and replaces the grouping mechanism using parentheses
   - [ ] The extended interval syntax  keywords 'unknown' and 'open' have been replaced with null and the double-dot notation ['..'] respectively
-  - [ ] The year prefix 'y' and the exponential indicator 'e', both previously lowercase, are now 'Y' and 'E' (uppercase)
-  - [ ] The significant digit indicator 'p' is now 'S' (uppercase)
+  - [X] The year prefix 'y' and the exponential indicator 'e', both previously lowercase, are now 'Y' and 'E' (uppercase)
+  - [X] The significant digit indicator 'p' is now 'S' (uppercase)
 - [X] Resolve currently-failing L2 unit tests because of grouping/qualifier propogation issues during parsing.
 - [X] Resolve currently-failing L2 unit tests due to re-grouping issues in ToString()).
 - [ ] Unit tests to cover the remaining L2 feature examples
