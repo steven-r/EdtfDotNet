@@ -26,7 +26,7 @@ Unit tests have been created to cover L0, L1, and some L2 features, using the ex
 ## To-Do (if you can help with these, that would be awesome)
 
 - Update to the new standard as of 2019 (taken from [the linke above](http://www.loc.gov/standards/datetime/edtf.html)):
-  - [ ] The unspecified date character (formerly lower case ‘u’) is superseded by the character (upper case) 'X' (Issue #1)
+  - [X] The unspecified date character (formerly lower case ‘u’) is superseded by the character (upper case) 'X' (Issue #1)
   - [ ] Masked precision is eliminated
   - [ ] The uncertain and approximate qualifiers, '?' and '~',  when applied together, are combined into a single qualifier character '%'
   - [ ] "Qualification from the left" is introduced and replaces the grouping mechanism using parentheses
