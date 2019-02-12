@@ -33,7 +33,7 @@ Y?
 			|[0-9X]+					# decimal form, "X" allowed 
 		)
 	)
-	(?>S(?<yearprecision>\d+))?			# precision, only for exponential form
+	(?>S(?<yearprecision>\d+))?			# precision
 	(?<yearend>\)?[~?]{0,2})			# optional flags and closing paren
 )
 

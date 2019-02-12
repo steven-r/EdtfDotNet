@@ -134,13 +134,21 @@ namespace Edtf {
 
 			var yearPrecision = g["yearprecision"].Value;
 			if (!string.IsNullOrEmpty(yearPrecision)) {
-				// The part after "p" are the number of *significant* digits, so
+				// The part after "S" are the number of *significant* digits, so
 				// to find the insignificant count, convert the value to a temp
 				// string to get its length.
 				// http://stackoverflow.com/questions/4483886/how-can-i-get-a-count-of-the-total-number-of-digits-in-a-number
 				var totalDigits = Math.Floor(Math.Log10(result.Year.Value) + 1);
-				var insigDigits = totalDigits - int.Parse(yearPrecision);
+                var sigDigits = int.Parse(yearPrecision);
+                result.Year.SignificantDigits = sigDigits;
+				var insigDigits = totalDigits - sigDigits;
 				result.Year.InsignificantDigits = (insigDigits < 0) ? (byte)0 : (byte)insigDigits;
+                if (totalDigits - sigDigits  < 0)
+                {
+                    // sig digits larger then year digit count
+                    result.Year.Invalid = true;
+                    return result;
+                }
 			}
 
 			var yearFlagsVal = g["yearend"].Value;
