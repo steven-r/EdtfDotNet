@@ -31,7 +31,7 @@ namespace EdtfTests {
     [TestFixture()] public class L2LongYearExponential {
 
 		[Test] public void TestL2LongYearExponential1() {
-			const string DateString = "y17e7";
+			const string DateString = "Y17E7";
 			var TestDate = Edtf.DatePair.Parse(DateString);
 			Assert.AreEqual(170000000, TestDate.StartValue.Year.Value);
 			Assert.AreEqual(0, TestDate.StartValue.Month.Value);
@@ -47,7 +47,7 @@ namespace EdtfTests {
 		}
 
 		[Test] public void TestL2LongYearExponential2() {
-			const string DateString = "y-17e7";
+			const string DateString = "Y-17E7";
 			var TestDate = Edtf.DatePair.Parse(DateString);
 			Assert.AreEqual(-170000000, TestDate.StartValue.Year.Value);
 			Assert.AreEqual(0, TestDate.StartValue.Month.Value);
@@ -63,7 +63,7 @@ namespace EdtfTests {
 		}
 
 		[Test] public void TestL2LongYearExponential3() {
-			const string DateString = "y17101e4p3";
+			const string DateString = "Y17101E4S3";
 			var TestDate = Edtf.DatePair.Parse(DateString);
 			Assert.AreEqual(171010000, TestDate.StartValue.Year.Value);
 			Assert.AreEqual(0, TestDate.StartValue.Month.Value);

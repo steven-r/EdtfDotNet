@@ -105,11 +105,11 @@ namespace Edtf
 				}
 
 				// s no longer contains any "X" characters, can be safely parsed
-				// Years may be in scientific notation, so if an "e" appears, use 
-				// Double.Parse instead of Int32 directly (an "e" in the first position
+				// Years may be in scientific notation, so if an "E" appears, use 
+				// Double.Parse instead of Int32 directly (an "E" in the first position
 				// would be illegal).
 
-				result.Value = (s.IndexOf('e') > 0) ?
+				result.Value = (s.IndexOf('E') > 0) ?
 					Convert.ToInt32(double.Parse(s))
 					: int.Parse(s);
 
