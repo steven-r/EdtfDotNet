@@ -122,41 +122,21 @@ namespace Edtf {
 			// Take the returned regular expression match and parse it into the various date/time bits,
 			// validating as needed.
 
-			var yearVal = g["yearnum"].Value;
+			result = ParseYear(g, result, out var yearFlagsVal);
 
-			// A Year is required.
-			if (String.IsNullOrEmpty(yearVal))
-				return result;
-
-			// Convert the year, this handles both normal and scientific notation
-			// Only parse using a Double first if there is an exponent.
-			result.Year = DatePart.Parse(yearVal, true);
-
-			var yearPrecision = g["yearprecision"].Value;
-			if (!string.IsNullOrEmpty(yearPrecision)) {
-				// The part after "p" are the number of *significant* digits, so
-				// to find the insignificant count, convert the value to a temp
-				// string to get its length.
-				// http://stackoverflow.com/questions/4483886/how-can-i-get-a-count-of-the-total-number-of-digits-in-a-number
-				var totalDigits = Math.Floor(Math.Log10(result.Year.Value) + 1);
-				var insigDigits = totalDigits - int.Parse(yearPrecision);
-				result.Year.InsignificantDigits = (insigDigits < 0) ? (byte)0 : (byte)insigDigits;
-			}
-
-			var yearFlagsVal = g["yearend"].Value;
-			if (!string.IsNullOrEmpty(yearFlagsVal)) {
-				result.Year.IsApproximate = yearFlagsVal.Contains('~');
-				result.Year.IsUncertain = yearFlagsVal.Contains('?');
-			}
-
-			var monthVal = g["monthnum"].Value;
-			if (string.IsNullOrEmpty(monthVal)) return result;
+            var monthVal = g["monthnum"].Value;
+			if (string.IsNullOrEmpty(monthVal))
+            {
+                return result;
+            }
 			result.Month = DatePart.Parse(monthVal, false);
-
+            if (result.Month.Invalid)
+            {
+                result.Status = DateStatus.Invalid;
+            }
 			// Keep a stack of open parenthesis and where they occurred. Also
 			// keep a count of accounted-for ones (where the closing paren
 			// has been reached).
-
 			var parens = new ParenthesisTracker() { YearsOpen = g["yearopenparens"].Value.Length };
 			{
 				var yearsClosed = yearFlagsVal.Count(t => t == ')');
@@ -169,7 +149,7 @@ namespace Edtf {
 
 			parens.MonthsOpen = g["monthopenparens"].Value.Length;
 			var monthFlagsVal = g["monthend"].Value;
-			if (!String.IsNullOrEmpty(monthFlagsVal)) {
+			if (!string.IsNullOrEmpty(monthFlagsVal)) {
 				parens.JustClosedYearParen = false;
 				parens.JustClosedMonthParen = false;
 				foreach (var c in monthFlagsVal) {
@@ -196,9 +176,25 @@ namespace Edtf {
 				return result;
 			}
 
+            if (result.Month.Value > 12)
+            {
+                result.Month.Invalid = true;
+                result.Status = DateStatus.Invalid;
+                return result;
+            }
+
 			var dayVal = g["daynum"].Value;
-			if (string.IsNullOrEmpty(dayVal)) return result;
+            if (string.IsNullOrEmpty(dayVal))
+            {
+                return result;
+            }
+
 			result.Day = DatePart.Parse(dayVal, false);
+            if (result.Day.Invalid)
+            {
+                result.Status = DateStatus.Invalid;
+                return result;
+            }
 
 			var dayFlagsVal = g["dayend"].Value;
 			if (!string.IsNullOrEmpty(dayFlagsVal)) {
@@ -232,22 +228,24 @@ namespace Edtf {
 			// TIME
 
 			var hourVal = g["hour"].Value;
-			if (String.IsNullOrEmpty(hourVal))
-				return result;
-			result.Hour = Int32.Parse(hourVal);
-			result.Minute = Int32.Parse(g["minute"].Value);
-			result.Second = Int32.Parse(g["second"].Value);
+            if (string.IsNullOrEmpty(hourVal))
+            {
+                return result;
+            }
+			result.Hour = int.Parse(hourVal);
+			result.Minute = int.Parse(g["minute"].Value);
+			result.Second = int.Parse(g["second"].Value);
 
 			// Time zone offset
 			var tzSignValue = g["tzsign"].Value;
-			if(!String.IsNullOrEmpty(g["tzutc"].Value)) {
+			if(!string.IsNullOrEmpty(g["tzutc"].Value)) {
 				result.HasTimeZoneOffset = true;
 			} else {
 				if (!String.IsNullOrEmpty(tzSignValue)) {
 					result.HasTimeZoneOffset = true;
 					var tzSign = (tzSignValue == "-") ? -1 : 1;
-					var tzHour = Int32.Parse(g["tzhour"].Value);
-					var tzMinute = Int32.Parse(g["tzminute"].Value);
+					var tzHour = int.Parse(g["tzhour"].Value);
+					var tzMinute = int.Parse(g["tzminute"].Value);
 					result.TimeZoneOffset = tzSign * (tzHour * 60) + tzMinute;
 				}
 			}
@@ -255,6 +253,49 @@ namespace Edtf {
 			return result;
 
 		}
-	
-	}
+
+        private static Date ParseYear(GroupCollection g, Date result, out string yearFlagsVal)
+        {
+            var yearVal = g["yearnum"].Value;
+            yearFlagsVal = "";
+
+            // A Year is required.
+            if (string.IsNullOrEmpty(yearVal))
+            {
+                result.Year.Invalid = true;
+                result.Status = DateStatus.Invalid;
+                return result;
+            }
+
+            // Convert the year, this handles both normal and scientific notation
+            // Only parse using a Double first if there is an exponent.
+            result.Year = DatePart.Parse(yearVal, true);
+            if (result.Year.Invalid)
+            {
+                result.Status = DateStatus.Invalid;
+                return result;
+            }
+
+            var yearPrecision = g["yearprecision"].Value;
+            if (!string.IsNullOrEmpty(yearPrecision))
+            {
+                // The part after "p" are the number of *significant* digits, so
+                // to find the insignificant count, convert the value to a temp
+                // string to get its length.
+                // http://stackoverflow.com/questions/4483886/how-can-i-get-a-count-of-the-total-number-of-digits-in-a-number
+                var totalDigits = Math.Floor(Math.Log10(result.Year.Value) + 1);
+                var insigDigits = totalDigits - int.Parse(yearPrecision);
+                result.Year.InsignificantDigits = (insigDigits < 0) ? (byte) 0 : (byte) insigDigits;
+            }
+
+            yearFlagsVal = g["yearend"].Value;
+            if (!string.IsNullOrEmpty(yearFlagsVal))
+            {
+                result.Year.IsApproximate = yearFlagsVal.Contains('~');
+                result.Year.IsUncertain = yearFlagsVal.Contains('?');
+            }
+
+            return result;
+        }
+    }
 }

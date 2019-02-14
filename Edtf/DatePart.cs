@@ -78,16 +78,13 @@ namespace Edtf {
 		public static DatePart Parse(string s, bool allowMaskedPrecision) {
 			var result = new DatePart();
 			if(!string.IsNullOrEmpty(s)) {
-
-				if (allowMaskedPrecision) {
-					result.InsignificantDigits = (byte)(s.Count(t => t == 'x'));
-					if (result.InsignificantDigits > 0) {
-						s = s.Replace('x', '0');
-					}
-				}
-
 				var firstX = s.IndexOf('X');
 				if (firstX >= 0) {
+                    if (!allowMaskedPrecision)
+                    {
+                        result.Invalid = true;
+                        return result;
+                    }
                     if (s.LastIndexOfAny(DigitsArray) > firstX)
                     {
                         result.Invalid = true;

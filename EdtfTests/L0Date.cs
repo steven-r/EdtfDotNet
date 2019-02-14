@@ -62,5 +62,25 @@ namespace EdtfTests
             Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
             Assert.AreEqual(DateString, TestDate.ToString());
         }
+
+        [Test]
+        public void TestStatusDayValidLeap()
+        {
+            const string dateString = "2004-02-29";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Normal, testDate.StartValue.Status);
+            Assert.AreEqual(2004, testDate.StartValue.Year.Value);
+            Assert.AreEqual(2, testDate.StartValue.Month.Value);
+            Assert.AreEqual(29, testDate.StartValue.Day.Value);
+        }
+
+        [Test]
+        public void TestEmptyDate()
+        {
+            const string dateString = "";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Unused, testDate.StartValue.Status);
+        }
+
     }
 }
