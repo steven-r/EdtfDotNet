@@ -15,7 +15,7 @@ build:
   project: Edtf.sln
 after_test:
   - OpenCover.Console.exe -register:user -target:"nunit3-console.exe" -targetargs:".\EdtfTests\bin\%CONFIGURATION%\EdtfTests.dll" -filter:"+[Edtf]*" -hideskipped:All -output:.\EdtfTests\bin\%CONFIGURATION%\coverage.xml
-  - codecov -f ".\EdtfTests\bin\%CONFIGURATION%\coverage.xml"
+  - codecov -X gcov -f ".\EdtfTests\bin\%CONFIGURATION%\coverage.xml"
 cache:
   - packages -> **\packages.config
 #artifacts:
