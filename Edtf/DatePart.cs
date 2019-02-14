@@ -82,11 +82,6 @@ namespace Edtf
 			if(!string.IsNullOrEmpty(s)) {
 				var firstX = s.IndexOf('X');
 				if (firstX >= 0) {
-                    if (!allowMaskedPrecision)
-                    {
-                        result.Invalid = true;
-                        return result;
-                    }
                     if (s.LastIndexOfAny(DigitsArray) > firstX)
                     {
                         result.Invalid = true;

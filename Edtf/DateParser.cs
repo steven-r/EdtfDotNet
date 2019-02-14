@@ -129,7 +129,7 @@ namespace Edtf {
             {
                 return result;
             }
-			result.Month = DatePart.Parse(monthVal, false);
+			result.Month = DatePart.Parse(monthVal);
             if (result.Month.Invalid)
             {
                 result.Status = DateStatus.Invalid;
@@ -189,7 +189,7 @@ namespace Edtf {
                 return result;
             }
 
-			result.Day = DatePart.Parse(dayVal, false);
+			result.Day = DatePart.Parse(dayVal);
             if (result.Day.Invalid)
             {
                 result.Status = DateStatus.Invalid;
@@ -269,7 +269,7 @@ namespace Edtf {
 
             // Convert the year, this handles both normal and scientific notation
             // Only parse using a Double first if there is an exponent.
-            result.Year = DatePart.Parse(yearVal, true);
+            result.Year = DatePart.Parse(yearVal);
             if (result.Year.Invalid)
             {
                 result.Status = DateStatus.Invalid;
