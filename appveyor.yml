@@ -4,7 +4,8 @@ environment:
   CODECOV_TOKEN: f432c3f8-8bb7-4689-b69c-8a2d074e8938
 install:
   #  - "SET PATH=C:\\Python34;C:\\Python34\\Scripts;C:\\ProgramData\\chocolatey\\bin;%PATH%"
-  - choco install gitversion.portable -pre -y
+  - choco install gitversion.portable 
+  - choco install opencover.portable
   - pip install codecov
 before_build:
   - nuget restore
@@ -13,8 +14,8 @@ before_build:
 build:
   project: Edtf.sln
 after_test:
-  - .\packages\OpenCover.4.7.922\tools\OpenCover.Console.exe -register:user -target:"nunit3-console.exe" -targetargs:".\EdtfTests\bin\%CONFIGURATION%\EdtfTests.dll" -filter:"+[Edtf]*" -hideskipped:All -output:.\EdtfTests\bin\%CONFIGURATION%\coverage.xml
-  - codecov -X gcov -f ".\EdtfTests\bin\%CONFIGURATION%\coverage.xml"
+  - OpenCover.Console.exe -register:user -target:"nunit3-console.exe" -targetargs:".\EdtfTests\bin\%CONFIGURATION%\EdtfTests.dll" -filter:"+[Edtf]*" -hideskipped:All -output:.\EdtfTests\bin\%CONFIGURATION%\coverage.xml
+  - codecov -f ".\EdtfTests\bin\%CONFIGURATION%\coverage.xml"
 cache:
   - packages -> **\packages.config
 #artifacts:
