@@ -8,12 +8,12 @@ install:
   - pip install codecov
 before_build:
   - nuget restore
-  - gitversion /l console /output buildserver
+  - gitversion /output buildserver
   #- GitReleaseNotes . /AllTags /C breaking /O ReleaseNotes.md
 build:
   project: Edtf.sln
 after_test:
-  - .\packages\OpenCover.4.7.922\tools\OpenCover.Console.exe -register:user -target:"nunit-console.exe" -targetargs:".\EdtfTests\bin\%CONFIGURATION%\EdtfTests.dll /noshadow /exclude=Performance" -filter:"+[Edtf]*" -hideskipped:All -output:.\EdtfTests\bin\%CONFIGURATION%\coverage.xml
+  - .\packages\OpenCover.4.7.922\tools\OpenCover.Console.exe -register:user -target:"nunit-console.exe" -targetargs:".\EdtfTests\bin\%CONFIGURATION%\EdtfTests.dll /exclude=Performance" -filter:"+[Edtf]*" -hideskipped:All -output:.\EdtfTests\bin\%CONFIGURATION%\coverage.xml
   - codecov -X gcov -f ".\EdtfTests\bin\%CONFIGURATION%\coverage.xml"
 cache:
   - packages -> **\packages.config
