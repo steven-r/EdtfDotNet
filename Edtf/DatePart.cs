@@ -26,31 +26,31 @@
 
 using System;
 using System.Globalization;
-using System.Linq;
 
-namespace Edtf {
+namespace Edtf
+{
 
-	/// <summary>
-	/// 
-	/// DatePart is a structure that includes both an integer value and flags to convey
-	/// whether there is a value, if it is uncertain and/or approximate, which digits
-	/// were not specified, and how precise the number is.
-	/// 
-	/// This structure forms the basis for each of the terms (year, month, etc.) in an
-	/// EDTF Date/Time value. Implicit conversion to and from a string is supported,
-	/// and string parsing from EDTF form is the expected means of construction. If an
-	/// issue occurs during the string parsing, the value will have a Status of Invalid. 
-	///
-	/// The ~, and ? tokens can apply to more than one portion of a date, so the individual
-	/// struct value may need to be manipulated further after the initial parsing. However,
-	/// there is explicitly no support in this implementation for parenthetical grouping
-	/// to specify the scope of these tokens (those are unsupported Level 2 features).
-	/// 
-	/// This is a very tight structure, the total size is 4 integers. It cannot store
-	/// dates further back than the mid-Rhyacian period (2.147 billion years ago).
-	/// 
-	/// </summary>
-	public struct DatePart
+    /// <summary>
+    /// 
+    /// DatePart is a structure that includes both an integer value and flags to convey
+    /// whether there is a value, if it is uncertain and/or approximate, which digits
+    /// were not specified, and how precise the number is.
+    /// 
+    /// This structure forms the basis for each of the terms (year, month, etc.) in an
+    /// EDTF Date/Time value. Implicit conversion to and from a string is supported,
+    /// and string parsing from EDTF form is the expected means of construction. If an
+    /// issue occurs during the string parsing, the value will have a Status of Invalid. 
+    ///
+    /// The ~, and ? tokens can apply to more than one portion of a date, so the individual
+    /// struct value may need to be manipulated further after the initial parsing. However,
+    /// there is explicitly no support in this implementation for parenthetical grouping
+    /// to specify the scope of these tokens (those are unsupported Level 2 features).
+    /// 
+    /// This is a very tight structure, the total size is 4 integers. It cannot store
+    /// dates further back than the mid-Rhyacian period (2.147 billion years ago).
+    /// 
+    /// </summary>
+    public struct DatePart
     {
         private static readonly char[] DigitsArray = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'};
 
@@ -68,14 +68,16 @@ namespace Edtf {
 		public bool IsUncertain { get; set; }
 		public bool IsApproximate { get; set; }
 
-		public int UnspecifiedMask { get; set; }			// places with a 1 are emitted as "X"
-		public byte InsignificantDigits { get; set; }
+		public int UnspecifiedMask { get; set; }            // places with a 1 are emitted as "X"
 
-		public override string ToString() {
+        public byte InsignificantDigits { get; set; }
+        public int SignificantDigits { get; set; }
+
+        public override string ToString() {
 			return ToString(0);
 		}
 
-		public static DatePart Parse(string s, bool allowMaskedPrecision) {
+		public static DatePart Parse(string s) {
 			var result = new DatePart();
 			if(!string.IsNullOrEmpty(s)) {
 				var firstX = s.IndexOf('X');
@@ -107,12 +109,12 @@ namespace Edtf {
 					s = newS;
 				}
 
-				// s no longer contains any "x" or "X" characters, can be safely parsed
-				// Years may be in scientific notation, so if an "e" appears, use 
-				// Double.Parse instead of Int32 directly (an "e" in the first position
+				// s no longer contains any "X" characters, can be safely parsed
+				// Years may be in scientific notation, so if an "E" appears, use 
+				// Double.Parse instead of Int32 directly (an "E" in the first position
 				// would be illegal).
 
-				result.Value = (s.IndexOf('e') > 0) ?
+				result.Value = (s.IndexOf('E') > 0) ?
 					Convert.ToInt32(double.Parse(s))
 					: int.Parse(s);
 
@@ -128,15 +130,10 @@ namespace Edtf {
 
 			var u = UnspecifiedMask.ToString(CultureInfo.InvariantCulture).PadLeft(padDigits,'0');
 
-			// Get the absolute value because we may need to mask the "X" or "x" positions
+			// Get the absolute value because we may need to mask the "X" positions
 			// Pad it on the left so it has enough characters for the unspecified mask, and
 			// convert it to an array so we can manipulate characters individually.
 			var v = Math.Abs(Value).ToString(CultureInfo.InvariantCulture).PadLeft(u.Length, '0').ToCharArray();
-
-			// Set the insignificant digits to "x"
-			for (int x = 1; x <= InsignificantDigits; x++) {
-				v[v.Length - x] = 'x';
-			}
 
 			// Set the unspecified digits to "X"
 			for (int i = 1; i <= u.Length; i++) {
@@ -152,11 +149,14 @@ namespace Edtf {
 
 			if(Value > 9999 || Value < -9999) {
 				// this is more than a 4-digit year, add the "y" prefix (it's optional, but probably wise in these exceptional cases)
-				v2 = 'y' + v2;
+				v2 = 'Y' + v2;
 			}
 
+            if (SignificantDigits > 0)
+            {
+                v2 += 'S' + SignificantDigits.ToString(CultureInfo.InvariantCulture);
+            }
 			return v2;
-
 		}
 
 	}

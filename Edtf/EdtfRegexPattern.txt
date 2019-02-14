@@ -23,17 +23,17 @@
 #	Since only the year is required, the other named groups may not exist.
 
 # YEAR
-y?
+Y?
 (?<year>
 	(?<yearopenparens>\(+)?				# year optional opening parens
 	(?<yearnum>
 		[+-]?							# optional sign
 		(?:
-			\d+e\d+						# exponential form, no "X" or "x" allowed
-			|[0-9X][0-9Xx]*				# decimal form, "X" allowed in the first digit, "X" or "x" in any other
+			\d+E\d+						# exponential form, no "X" allowed
+			|[0-9X]+					# decimal form, "X" allowed 
 		)
 	)
-	(?>p(?<yearprecision>\d+))?			# precision, only for exponential form
+	(?>S(?<yearprecision>\d+))?			# precision
 	(?<yearend>\)?[~?]{0,2})			# optional flags and closing paren
 )
 
