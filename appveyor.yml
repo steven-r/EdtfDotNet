@@ -13,7 +13,7 @@ before_build:
 build:
   project: Edtf.sln
 after_test:
-  - .\packages\OpenCover.4.7.922\tools\OpenCover.Console.exe -register:user -target:"nunit-console.exe" -targetargs:".\EdtfTests\bin\%CONFIGURATION%\EdtfTests.dll /exclude=Performance" -filter:"+[Edtf]*" -hideskipped:All -output:.\EdtfTests\bin\%CONFIGURATION%\coverage.xml
+  - .\packages\OpenCover.4.7.922\tools\OpenCover.Console.exe -register:user -target:"nunit3-console.exe" -targetargs:".\EdtfTests\bin\%CONFIGURATION%\EdtfTests.dll" -filter:"+[Edtf]*" -hideskipped:All -output:.\EdtfTests\bin\%CONFIGURATION%\coverage.xml
   - codecov -X gcov -f ".\EdtfTests\bin\%CONFIGURATION%\coverage.xml"
 cache:
   - packages -> **\packages.config
