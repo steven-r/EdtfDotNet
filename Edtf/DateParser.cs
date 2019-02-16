@@ -245,13 +245,13 @@ namespace Edtf {
         {
             var yearVal = g["yearnum"].Value;
 
-            // A Year is required.
-            if (string.IsNullOrEmpty(yearVal))
-            {
-                result.Year.Invalid = true;
-                result.Status = DateStatus.Invalid;
-                return false;
-            }
+            // A Year is required.  as of regex this cannot happen
+            //if (string.IsNullOrEmpty(yearVal))
+            //{
+            //    result.Year.Invalid = true;
+            //    result.Status = DateStatus.Invalid;
+            //    return false;
+            //}
 
             // Convert the year, this handles both normal and scientific notation
             // Only parse using a Double first if there is an exponent.
