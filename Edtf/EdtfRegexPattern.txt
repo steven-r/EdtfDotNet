@@ -9,23 +9,27 @@
 #
 # Named groups are created for the following:
 #
-#	year		The entire year, including opening and closing parenthesis, etc. but not flags
+#	year		The entire year, including opening and closing parenthesis and flags
 #	yearnum		The year number, including sign, exponents, and precision
-#	yearflags	The end of the year flags
+#	yearopenflags	The open of the year flags
+#	yearendflags	The end of the year flags
 #	month		The entire month, including parenthesis, but not flags
 #	monthnum	The month number
 #	seasonqualifier		The optional qualifier for seasons (seasons cannot have days or times)
-#	monthflags	The end of the month flags
+#	monthopenflags	The open of the month flags
+#	monthendflags	The end of the month flags
 #	day			The entire day, including parenthesis, but not flags
 #	daynum		The day number
+#	dayopenflags	The open of the day flags
+#	dayendflags	The end of the day flags
 #	time		Time in common HH:MM:SS(Z|+-HH:MM) format, which can be parsed natively by .NET easily
 #
 #	Since only the year is required, the other named groups may not exist.
 
 # YEAR
-Y?
+(?<yearlongind>Y?)
 (?<year>
-	(?<yearopenparens>\(+)?				# year optional opening parens
+	(?<yearopenflags>[~?%]{0,2})		# year optional opening parens
 	(?<yearnum>
 		[+-]?							# optional sign
 		(?:
@@ -34,35 +38,24 @@ Y?
 		)
 	)
 	(?>S(?<yearprecision>\d+))?			# precision
-	(?<yearend>\)?[~?]{0,2})			# optional flags and closing paren
+	(?<yearcloseflags>[~?%]{0,2})		# optional flags and closing paren
 )
 
 # MONTH
 (?>-
 	(?<month>
-		(?<monthopenparens>\(+)?		# month optional opening paren
-		(?<monthnum>(?>1[0-9X]|[0X][0-9X]|2[1-4]))
-
-		# The EDTF spec allows any non-whitespace character here, but a number of characters should be reserved because they can
-		# appear legitimately between date values in sets/pairs. Based on a recommendation to the listserv in December 2014, this
-		# implementation limits the legal characters to Unicode letters, marks, and numbers, plus individual code points for
-		# "_", ":", and "-". Colons are allowed so URNs may be used, but URIs cannot be used currently because "/" is disallowed.
-
-		(?>\^(?<seasonqualifier>[\P{L}\P{N}\P{M}:.-]+))?
+		(?<monthopenflags>[~?%]{0,2})		# month optional opening paren
+		(?<monthnum>(?>[0-9X]{1,2}))
+		(?<monthcloseflags>[~?%]{0,2})		# month optional flags and closing parens
 	)
-	(?<monthend>
-		(?:\)?[~?]{0,2}){0,2}
-	)									# month optional flags and closing parens
 
 	# DAY
 	(?>-
 		(?<day>
-			(?<dayopenparens>\(+)?		# day optional opening paren
-			(?<daynum>(?>[012X][0-9X]|3[01X]))
+			(?<dayopenflags>[~?%]{0,2})		# day optional opening paren
+			(?<daynum>(?>[0-9X]{1,2}))
+			(?<daycloseflags>[~?%]{0,2})	# dayoptional flags and closing parens
 		)
-		(?<dayend>
-			[)~?]*
-		)								# day optional flags and closing parens
 
 		# TIME
 		(?>T

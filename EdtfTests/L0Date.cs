@@ -72,6 +72,38 @@ namespace EdtfTests
         }
 
         [Test]
+        public void TestMinusDate()
+        {
+            const string dateString = "-";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Invalid, testDate.StartValue.Status);
+        }
+
+        [Test]
+        public void TestNullDate()
+        {
+            const string dateString = "2019-01-00";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Invalid, testDate.StartValue.Status);
+        }
+
+        [Test]
+        public void TestNullMonth()
+        {
+            const string dateString = "2019-00";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Invalid, testDate.StartValue.Status);
+        }
+
+        [Test]
+        public void TestWrongJune()
+        {
+            const string dateString = "2019-06-31";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Invalid, testDate.StartValue.Status);
+        }
+
+        [Test]
         public void TestStatusDayValidLeapMod4()
         {
             const string dateString = "2020-02-29";
