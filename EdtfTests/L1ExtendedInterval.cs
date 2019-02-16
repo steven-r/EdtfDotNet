@@ -46,7 +46,7 @@ namespace EdtfTests
         }
 
         [Test] public void TestL1ExtendedInterval4() {
-            const string DateString = "1984~/2004-06";
+            const string DateString = "~1984/2004-06";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
             Assert.AreEqual(true, TestDate.StartValue.Year.IsApproximate);
@@ -79,7 +79,7 @@ namespace EdtfTests
         }
 
         [Test] public void TestL1ExtendedInterval6() {
-            const string DateString = "1984~/2004~";
+            const string DateString = "~1984/~2004";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
             Assert.AreEqual(true, TestDate.StartValue.Year.IsApproximate);
@@ -94,7 +94,7 @@ namespace EdtfTests
         }
 
         [Test] public void TestL1ExtendedInterval7() {
-            const string DateString = "1984?/2004?~";
+            const string DateString = "?1984/%2004";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
             Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
