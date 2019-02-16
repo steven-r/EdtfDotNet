@@ -46,5 +46,31 @@ namespace EdtfTests
             var testDate = DatePair.Parse(dateString);
             Assert.AreEqual(DateStatus.Invalid, testDate.StartValue.Status);
         }
+
+        [Test]
+        public void TestStatusHourInvalid()
+        {
+            const string dateString = "2199-01-01T25:00:00";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Invalid, testDate.StartValue.Status);
+        }
+
+        [Test]
+        public void TestStatusMinuteInvalid()
+        {
+            const string dateString = "2199-01-01T23:61:00";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Invalid, testDate.StartValue.Status);
+        }
+
+
+        [Test]
+        public void TestStatusSecsInvalid()
+        {
+            const string dateString = "2199-01-01T23:00:60";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Invalid, testDate.StartValue.Status);
+        }
+
     }
 }

@@ -68,6 +68,7 @@ namespace Edtf {
 			}
 		}
 
+        private static int[] SmallMonths = {4, 6, 9, 11};
 
 		private static Regex _matcher;
 		private static readonly object MatchLoadLocker = new object();
@@ -176,7 +177,7 @@ namespace Edtf {
 				return result;
 			}
 
-            if (result.Month.Value > 12)
+            if (result.Month.Value > 12 || (result.Month.Value < 1 && result.Month.UnspecifiedMask == 0))
             {
                 result.Month.Invalid = true;
                 result.Status = DateStatus.Invalid;
@@ -196,6 +197,11 @@ namespace Edtf {
                 return result;
             }
 
+            if (!ValidateDay(result))
+            {
+                result.Status = DateStatus.Invalid;
+                return result;
+            }
 			var dayFlagsVal = g["dayend"].Value;
 			if (!string.IsNullOrEmpty(dayFlagsVal)) {
 				parens.JustClosedYearParen = false;
@@ -233,11 +239,18 @@ namespace Edtf {
                 return result;
             }
 			result.Hour = int.Parse(hourVal);
+            ValidateRange(ref result, result.Hour, 0, 23);
 			result.Minute = int.Parse(g["minute"].Value);
+            ValidateRange(ref result, result.Minute, 0, 59);
 			result.Second = int.Parse(g["second"].Value);
+            ValidateRange(ref result, result.Second, 0, 59);
 
-			// Time zone offset
-			var tzSignValue = g["tzsign"].Value;
+            if (DateStatus.Invalid == result.Status)
+            {
+                return result;
+            }
+            // Time zone offset
+            var tzSignValue = g["tzsign"].Value;
 			if(!string.IsNullOrEmpty(g["tzutc"].Value)) {
 				result.HasTimeZoneOffset = true;
 			} else {
@@ -251,8 +264,51 @@ namespace Edtf {
 			}
 
 			return result;
-
 		}
+
+        private static void ValidateRange(ref Date result, int value, int min, int max)
+        {
+            if (value < min || value > max)
+            {
+                result.Status = DateStatus.Invalid;
+            }
+        }
+
+        private static bool ValidateDay(Date dateValue)
+        {
+            if (!dateValue.Day.HasValue || dateValue.Month.UnspecifiedMask != 0 || dateValue.Day.UnspecifiedMask != 0)
+            {
+                return true; // no date is a good date
+            }
+
+            if (dateValue.Day.Value < 1)
+            {
+                return false;
+            }
+
+            if (dateValue.Day.Value > 30 && SmallMonths.Contains(dateValue.Month.Value))
+            {
+                return false;
+            }
+
+            if (dateValue.Day.Value > 29 && dateValue.Month.Value == 2)
+            {
+                return false;
+            }
+
+            if (dateValue.Year.UnspecifiedMask != 0)
+            {
+                return true; // ignored on 'X'
+            }
+
+            var isLeap = dateValue.Year.Value % 4 == 0 && (dateValue.Year.Value % 100 != 0 || dateValue.Year.Value % 1000 == 0);
+            if (!isLeap && dateValue.Day.Value > 28 && dateValue.Month.Value == 2)
+            {
+                return false;
+            }
+
+            return true;
+        }
 
         private static Date ParseYear(GroupCollection g, Date result, out string yearFlagsVal)
         {
@@ -284,8 +340,16 @@ namespace Edtf {
                 // string to get its length.
                 // http://stackoverflow.com/questions/4483886/how-can-i-get-a-count-of-the-total-number-of-digits-in-a-number
                 var totalDigits = Math.Floor(Math.Log10(result.Year.Value) + 1);
-                var insigDigits = totalDigits - int.Parse(yearPrecision);
-                result.Year.InsignificantDigits = (insigDigits < 0) ? (byte) 0 : (byte) insigDigits;
+                var sigDigits = int.Parse(yearPrecision);
+                result.Year.SignificantDigits = sigDigits;
+                var insigDigits = totalDigits - sigDigits;
+                result.Year.InsignificantDigits = (insigDigits < 0) ? (byte)0 : (byte)insigDigits;
+                if (totalDigits - sigDigits < 0)
+                {
+                    // sig digits larger then year digit count
+                    result.Year.Invalid = true;
+                    return result;
+                }
             }
 
             yearFlagsVal = g["yearend"].Value;
