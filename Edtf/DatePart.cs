@@ -80,7 +80,6 @@ namespace Edtf
 		public static DatePart Parse(string s) {
 			var result = new DatePart();
 			if(!string.IsNullOrEmpty(s)) {
-
 				var firstX = s.IndexOf('X');
 				if (firstX >= 0) {
                     if (s.LastIndexOfAny(DigitsArray) > firstX)

@@ -43,42 +43,51 @@ namespace Edtf {
 		public bool HasTimeZoneOffset { get; set; }		// Useful to know if "0" means UTC or just undefined
 
 		public override string ToString() {
-			if (Status == DateStatus.Unused) return String.Empty;
+			if (Status == DateStatus.Unused) return string.Empty;
 			if (Status == DateStatus.Open) return SpecialValues.Open;
-			if (Status == DateStatus.Unknown) return SpecialValues.Unknown;
-			if (!Year.HasValue) return String.Empty;
+			if (Status == DateStatus.Unknown) return string.Empty;
+			if (!Year.HasValue) return string.Empty;
 
 			// FLAG GROUPINGS.
-			// Create flag groupings from right to left. There is more than one valid way to group,
-			// this is the simplest algorithm I could come up with:
-			// -- Wrap a day that has *any* flags the Month doesn't have.
-			// -- Never wrap a month.
-			// -- Wrap a year if it *lacks* flags that the month has.
 
-			var doWrapDay = (Day.IsUncertain && !Month.IsUncertain) || (Day.IsApproximate && !Month.IsApproximate);
-			var doWrapYear = (Month.IsUncertain && !Year.IsUncertain) || (Month.IsApproximate && !Year.IsApproximate);
+            var isSingleUncertain = Year.IsUncertain && !Month.IsUncertain;
+            var isSingleApprox = Year.IsApproximate && !Month.IsApproximate;
 
-			var result = doWrapYear ? "(" : String.Empty;
+            string result = string.Empty;
+            AddFlagsToString(ref result, isSingleApprox, isSingleUncertain);
+
 			result += Year.ToString(4);
-			if (doWrapYear) result += ')';
-			if (Year.IsUncertain && (doWrapYear || !Month.IsUncertain)) result += '?';
-			if (Year.IsApproximate && (doWrapYear || !Month.IsApproximate)) result += '~';
 
 			if (Month.HasValue) {
 				result += "-";
-				result += Month.ToString(2).PadLeft(2, '0');
-				if (Month.IsUncertain && !Day.IsUncertain) result += '?';
-				if (Month.IsApproximate && !Day.IsApproximate) result += '~';
 
-				if (Day.HasValue) {
+                var isLeftUncertain = !Year.IsUncertain && Month.IsUncertain;
+                var isLeftApprox = !Year.IsApproximate && Month.IsApproximate;
+
+                AddFlagsToString(ref result, isLeftApprox, isLeftUncertain);
+
+                result += Month.ToString(2).PadLeft(2, '0');
+
+                var isRightUncertain = Year.IsUncertain && Month.IsUncertain && !Day.IsUncertain;
+                var isRightApprox = Year.IsApproximate && Month.IsApproximate && !Day.IsApproximate;
+
+                AddFlagsToString(ref result, isRightApprox, isRightUncertain);
+
+                if (Day.HasValue) {
 					result += "-";
-					if (doWrapDay) result += '(';
-					result += Day.ToString(2).PadLeft(2, '0');
-					if (doWrapDay) result += ')';
-					if (Day.IsUncertain) result += '?';
-					if (Day.IsApproximate) result += '~';
+                    isLeftUncertain = !(Year.IsUncertain && Month.IsUncertain) && Day.IsUncertain;
+                    isLeftApprox = !(Year.IsApproximate && Month.IsApproximate) && Day.IsApproximate;
 
-					if ( (Hour > 0) || (Minute > 0) || (Second > 0) ) {
+                    AddFlagsToString(ref result, isLeftApprox, isLeftUncertain);
+
+                    result += Day.ToString(2).PadLeft(2, '0');
+
+                    isRightUncertain = Year.IsUncertain && Month.IsUncertain && Day.IsUncertain;
+                    isRightApprox = Year.IsApproximate && Month.IsApproximate && Day.IsApproximate;
+
+                    AddFlagsToString(ref result, isRightApprox, isRightUncertain);
+
+                    if ( (Hour > 0) || (Minute > 0) || (Second > 0) ) {
 						result += "T" + Hour.ToString("00") + ":" + Minute.ToString("00") + ":" + Second.ToString("00");
 						if (TimeZoneOffset == 0) {
 							// The standard is somewhat unclear, but suggests that if there is no "Z" and no TZ offset,
@@ -99,9 +108,23 @@ namespace Edtf {
 			return result;
 		}
 
-		public static Date Parse(string s) {
-			return DateParser.Parse(s);
-		}
+        private void AddFlagsToString(ref string result, bool approx, bool uncertain)
+        {
+            if (approx || uncertain)
+            {
+                result += approx && uncertain ? "%" : approx? "~" : "?";
+            }
+        }
+
+        internal static Date Parse(string s, bool hasInterval)
+        {
+            return DateParser.Parse(s, hasInterval);
+        }
+
+        public static Date Parse(string s)
+        {
+            return DateParser.Parse(s, false);
+        }
 
 	}
 

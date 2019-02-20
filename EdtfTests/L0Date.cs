@@ -62,5 +62,76 @@ namespace EdtfTests
             Assert.AreEqual(DateStatus.Unused, TestDate.EndValue.Status);
             Assert.AreEqual(DateString, TestDate.ToString());
         }
+
+        [Test]
+        public void TestEmptyDate()
+        {
+            const string dateString = "";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Unused, testDate.StartValue.Status);
+        }
+
+        [Test]
+        public void TestMinusDate()
+        {
+            const string dateString = "-";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Invalid, testDate.StartValue.Status);
+        }
+
+        [Test]
+        public void TestNullDate()
+        {
+            const string dateString = "2019-01-00";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Invalid, testDate.StartValue.Status);
+        }
+
+        [Test]
+        public void TestNullMonth()
+        {
+            const string dateString = "2019-00";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Invalid, testDate.StartValue.Status);
+        }
+
+        [Test]
+        public void TestWrongJune()
+        {
+            const string dateString = "2019-06-31";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Invalid, testDate.StartValue.Status);
+        }
+
+        [Test]
+        public void TestStatusDayValidLeapMod4()
+        {
+            const string dateString = "2020-02-29";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Normal, testDate.StartValue.Status);
+            Assert.AreEqual(2020, testDate.StartValue.Year.Value);
+            Assert.AreEqual(2, testDate.StartValue.Month.Value);
+            Assert.AreEqual(29, testDate.StartValue.Day.Value);
+        }
+
+        [Test]
+        public void TestStatusDayValidLeapMod100()
+        {
+            const string dateString = "1900-02-29";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Invalid, testDate.StartValue.Status);
+        }
+
+
+        [Test]
+        public void TestStatusDayValidLeapMod1000()
+        {
+            const string dateString = "2000-02-29";
+            var testDate = DatePair.Parse(dateString);
+            Assert.AreEqual(DateStatus.Normal, testDate.StartValue.Status);
+            Assert.AreEqual(2000, testDate.StartValue.Year.Value);
+            Assert.AreEqual(2, testDate.StartValue.Month.Value);
+            Assert.AreEqual(29, testDate.StartValue.Day.Value);
+        }
     }
 }

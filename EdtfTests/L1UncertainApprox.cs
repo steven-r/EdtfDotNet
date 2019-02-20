@@ -6,7 +6,7 @@ namespace EdtfTests
     [TestFixture()] public class L1UncertainApprox {
 
         [Test] public void TestL1Uncertain1() {
-            const string DateString = "1984?";
+            const string DateString = "?1984";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
             Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
@@ -47,7 +47,7 @@ namespace EdtfTests
         }
 
         [Test] public void TestL1Approx1() {
-            const string DateString = "1984~";
+            const string DateString = "~1984";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
             Assert.AreEqual(false, TestDate.StartValue.Year.IsUncertain);
@@ -60,7 +60,7 @@ namespace EdtfTests
         }
 
         [Test] public void TestL1Approx2() {
-            const string DateString = "1984?~";
+            const string DateString = "%1984";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
             Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);

@@ -5,8 +5,8 @@ namespace EdtfTests
 {
     [TestFixture()] public class L1ExtendedInterval {
 
-        [Test] public void TestL1ExtendedInterval1() {
-            const string DateString = "unknown/2006";
+        [Test] public void TestL1ExtendedIntervalUnknownLeft() {
+            const string DateString = "/2006";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(2006, TestDate.EndValue.Year.Value);
             Assert.AreEqual(false, TestDate.StartValue.Year.HasValue);
@@ -17,8 +17,8 @@ namespace EdtfTests
             Assert.AreEqual(DateString, TestDate.ToString());
         }
 
-        [Test] public void TestL1ExtendedInterval2() {
-            const string DateString = "2004-06-01/unknown";
+        [Test] public void TestL1ExtendedIntervalUnknownRight() {
+            const string DateString = "2004-06-01/";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
             Assert.AreEqual(false, TestDate.EndValue.Year.HasValue);
@@ -31,8 +31,10 @@ namespace EdtfTests
             Assert.AreEqual(DateString, TestDate.ToString());
         }
 
-        [Test] public void TestL1ExtendedInterval3() {
-            const string DateString = "2004-01-01/open";
+        [Test]
+        public void TestL1ExtendedIntervalOpenRight()
+        {
+            const string DateString = "2004-01-01/..";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(2004, TestDate.StartValue.Year.Value);
             Assert.AreEqual(false, TestDate.EndValue.Year.HasValue);
@@ -45,8 +47,27 @@ namespace EdtfTests
             Assert.AreEqual(DateString, TestDate.ToString());
         }
 
+        [Test]
+        public void TestL1ExtendedIntervalOpenLeft()
+        {
+            const string DateString = "../2004-01-01";
+            var TestDate = Edtf.DatePair.Parse(DateString);
+            Assert.AreEqual(false, TestDate.StartValue.Year.HasValue);
+            Assert.AreEqual(false, TestDate.StartValue.Month.HasValue);
+            Assert.AreEqual(false, TestDate.StartValue.Day.HasValue);
+            Assert.AreEqual(true, TestDate.EndValue.Month.HasValue);
+            Assert.AreEqual(true, TestDate.EndValue.Year.HasValue);
+            Assert.AreEqual(true, TestDate.EndValue.Day.HasValue);
+            Assert.AreEqual(2004, TestDate.EndValue.Year.Value);
+            Assert.AreEqual(1, TestDate.EndValue.Month.Value);
+            Assert.AreEqual(1, TestDate.EndValue.Day.Value);
+            Assert.AreEqual(DateStatus.Open, TestDate.StartValue.Status);
+            Assert.AreEqual(DateStatus.Normal, TestDate.EndValue.Status);
+            Assert.AreEqual(DateString, TestDate.ToString());
+        }
+
         [Test] public void TestL1ExtendedInterval4() {
-            const string DateString = "1984~/2004-06";
+            const string DateString = "~1984/2004-06";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
             Assert.AreEqual(true, TestDate.StartValue.Year.IsApproximate);
@@ -79,7 +100,7 @@ namespace EdtfTests
         }
 
         [Test] public void TestL1ExtendedInterval6() {
-            const string DateString = "1984~/2004~";
+            const string DateString = "~1984/~2004";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
             Assert.AreEqual(true, TestDate.StartValue.Year.IsApproximate);
@@ -94,7 +115,7 @@ namespace EdtfTests
         }
 
         [Test] public void TestL1ExtendedInterval7() {
-            const string DateString = "1984?/2004?~";
+            const string DateString = "?1984/%2004";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
             Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
@@ -147,7 +168,7 @@ namespace EdtfTests
         }
 
         [Test] public void TestL1ExtendedInterval10() {
-            const string DateString = "1984-06-02?/unknown";
+            const string DateString = "1984-06-02?/";
             var TestDate = Edtf.DatePair.Parse(DateString);
             Assert.AreEqual(1984, TestDate.StartValue.Year.Value);
             Assert.AreEqual(true, TestDate.StartValue.Year.IsUncertain);
@@ -162,6 +183,5 @@ namespace EdtfTests
             Assert.AreEqual(DateStatus.Unknown, TestDate.EndValue.Status);
             Assert.AreEqual(DateString, TestDate.ToString());
         }
-
     }
 }
