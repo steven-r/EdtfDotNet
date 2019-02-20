@@ -45,7 +45,7 @@ namespace Edtf {
 		public override string ToString() {
 			if (Status == DateStatus.Unused) return string.Empty;
 			if (Status == DateStatus.Open) return SpecialValues.Open;
-			if (Status == DateStatus.Unknown) return SpecialValues.Unknown;
+			if (Status == DateStatus.Unknown) return string.Empty;
 			if (!Year.HasValue) return string.Empty;
 
 			// FLAG GROUPINGS.
@@ -116,9 +116,15 @@ namespace Edtf {
             }
         }
 
-        public static Date Parse(string s) {
-			return DateParser.Parse(s);
-		}
+        internal static Date Parse(string s, bool hasInterval)
+        {
+            return DateParser.Parse(s, hasInterval);
+        }
+
+        public static Date Parse(string s)
+        {
+            return DateParser.Parse(s, false);
+        }
 
 	}
 

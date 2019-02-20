@@ -30,7 +30,7 @@ Unit tests have been created to cover L0, L1, and some L2 features, using the ex
   - [X] Masked precision is eliminated (#6)
   - [X] The uncertain and approximate qualifiers, '?' and '~',  when applied together, are combined into a single qualifier character '%'
   - [X] "Qualification from the left" is introduced and replaces the grouping mechanism using parentheses
-  - [ ] The extended interval syntax  keywords 'unknown' and 'open' have been replaced with null and the double-dot notation ['..'] respectively
+  - [X] The extended interval syntax  keywords 'unknown' and 'open' have been replaced with null and the double-dot notation ['..'] respectively
   - [X] The year prefix 'y' and the exponential indicator 'e', both previously lowercase, are now 'Y' and 'E' (uppercase)
   - [X] The significant digit indicator 'p' is now 'S' (uppercase)
   - [X] Significant digits are supported at any year (four digit, "Y" and "Y" with exp)
