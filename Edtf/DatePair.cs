@@ -37,8 +37,8 @@ namespace Edtf {
 	/// </summary>
 	public struct DatePair	{
 
-		public Date StartValue { get; set; }
-		public Date EndValue { get; set; }
+		public Date StartValue { get; private set; }
+		public Date EndValue { get; private set; }
 
 		/// <summary>
 		/// By default, a Date's two values are considered to be an Interval (every possible instant
@@ -62,7 +62,7 @@ namespace Edtf {
 			var e = EndValue.ToString();
 			if (IsRange)
 				return s + RangeDelimiter + e;
-			if (String.IsNullOrEmpty(e))
+			if (EndValue.Status != DateStatus.Unknown && string.IsNullOrEmpty(e))
 				return s;
 			return s + IntervalDelimiter + e;
 		}
@@ -82,17 +82,19 @@ namespace Edtf {
 
 		public static DatePair Parse(string s) {
 			var result = new DatePair();
+            var hasInterval = false;
 			string sv, ev;
-			if (String.IsNullOrEmpty(s)) {
-				sv = String.Empty;
-				ev = String.Empty;
+			if (string.IsNullOrEmpty(s)) {
+				sv = string.Empty;
+				ev = string.Empty;
 			} else {
 				var i = s.IndexOf(IntervalDelimiter);
-				if (i > 0) {
-					// The interval can't start with "/", hence the > instead of >=
-					sv = s.Substring(0, i);
-					ev = s.Substring(i + 1);
-				} else { 
+                hasInterval = i >= 0;
+				if (i >= 0)
+                {
+                    sv = i == 0 ? string.Empty : s.Substring(0, i);
+                    ev = s.Substring(i + 1);
+                } else { 
 					var j = s.IndexOf(RangeDelimiter, StringComparison.InvariantCulture);
 					if (j < 0) {
 						// This is not an interval or range, just a single value.
@@ -106,8 +108,8 @@ namespace Edtf {
 					}
 				}
 			}
-			result.StartValue = Date.Parse(sv);
-			result.EndValue = Date.Parse(ev);
+			result.StartValue = Date.Parse(sv, hasInterval);
+			result.EndValue = Date.Parse(ev, hasInterval);
 			return result;
 		}
 

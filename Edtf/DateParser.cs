@@ -61,21 +61,16 @@ namespace Edtf {
 			}
 		}
 
-		public static Date Parse(string rawValue) {
+		public static Date Parse(string rawValue, bool hasInterval) {
 			var result = new Date();
 
 			if (string.IsNullOrEmpty(rawValue)) {
-				result.Status = DateStatus.Unused;
+				result.Status = hasInterval ? DateStatus.Unknown : DateStatus.Unused;
 				return result;
 			}
 
 			if (rawValue == SpecialValues.Open) {
 				result.Status = DateStatus.Open;
-				return result;
-			}
-
-			if (rawValue == SpecialValues.Unknown) {
-				result.Status = DateStatus.Unknown;
 				return result;
 			}
 
