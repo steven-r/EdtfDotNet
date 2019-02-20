@@ -1,37 +1,19 @@
 os: Visual Studio 2017
 configuration: Release
-environment:
-  CODECOV_TOKEN: f432c3f8-8bb7-4689-b69c-8a2d074e8938
 install:
-  #  - "SET PATH=C:\\Python34;C:\\Python34\\Scripts;C:\\ProgramData\\chocolatey\\bin;%PATH%"
   - choco install gitversion.portable 
   - choco install opencover.portable
   - pip install codecov
 before_build:
   - nuget restore
   - gitversion /output buildserver
-  #- GitReleaseNotes . /AllTags /C breaking /O ReleaseNotes.md
 build:
   project: Edtf.sln
 after_test:
   - OpenCover.Console.exe -register:user -target:"nunit3-console.exe" -targetargs:".\EdtfTests\bin\%CONFIGURATION%\EdtfTests.dll" -filter:"+[Edtf]*" -hideskipped:All -output:.\EdtfTests\bin\%CONFIGURATION%\coverage.xml
-  - codecov -f ".\EdtfTests\bin\%CONFIGURATION%\coverage.xml"
+  - codecov -X gcov -f ".\EdtfTests\bin\%CONFIGURATION%\coverage.xml"
 cache:
   - packages -> **\packages.config
-#artifacts:
-  #- path: 'ReleaseNotes.md'
-  #- path: 'Package\bin\**\*.nupkg'
-  #- path: 'Pegasus.Templates\bin\**\*.zip'
-  #- path: 'Pegasus.Package\bin\**\*.vsix'
-  #- path: 'Pegasus.Workbench\bin\%CONFIGURATION%'
-  #  name: Pegasus.Workbench
-  # type: zip
-#deploy:
-  #provider: NuGet
-  #api_key:
-  #  secure: xx
-  #skip_symbols: false
-  #artifact: /.*\.nupkg/
 skip_commits:
   files:
     - .gitattributes
